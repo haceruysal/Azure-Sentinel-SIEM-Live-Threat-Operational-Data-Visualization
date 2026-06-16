@@ -51,6 +51,8 @@ SigninLogs
 | order by LoginCount desc
 | project Identity, Latitude, Longitude, City, Country, LoginCount, friendly_label = strcat(Identity, " - ", City, ", ", Country)
 
+
+```
 ### 3. Azure Resource Creation & Modifications
 * **Log Source:** `AzureActivity` (OperationNameValue containing "write" or "action")
 * **Objective:** Visualizes where and when infrastructure modifications occur.
