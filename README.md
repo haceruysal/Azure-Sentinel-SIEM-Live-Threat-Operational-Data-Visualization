@@ -10,14 +10,46 @@ The primary objective was to build real-time, geographic, and operational visual
 ## Core Visualizations & Scenarios Implemented
 
 ### 1. Entra ID (Azure) Authentication Success
+
 * **Log Source:** `SigninLogs`
 * **Objective:** Tracks authorized access points globally to establish a baseline of normal user operations.
-* **Business Value:** Identifies geographic anomalies (e.g., impossible travel) for legitimate corporate or partner accounts.
+* 
+#### Visual Dashboard
+### Entra ID Authentication Success Map
+<img width="1522" height="556" alt="Screenshot 2026-06-16 at 1 24 57 PM" src="https://github.com/user-attachments/assets/8a888548-d605-435b-80cf-2ced7da73337" />
+
+#### The KQL Query
+```kusto
+SigninLogs
+| where ResultType == 0
+| summarize LoginCount = count() by Identity, Latitude = tostring(LocationDetails["geoCoordinates"]["latitude"]), Longitude = tostring(LocationDetails["geoCoordinates"]["longitude"]), City = tostring(LocationDetails["city"]), Country = tostring(LocationDetails["countryOrRegion"])
+| project Identity, Latitude, Longitude, City, Country, LoginCount, friendly_label = strcat(Identity, " - ", City, ", ", Country)
+```
+### 📊 Dashboard Analysis & Key Findings
+
+* **Geographic Baseline:** Visualizes the global distribution of all successful user logins by plotting the exact latitude and longitude coordinates extracted from nested JSON log data. This allows operational teams to map out standard traffic boundaries and establish normal operational patterns.
+* **The New York Outlier:** A deep-dive analysis of the live map exposed a massive data spike—a single hashed user identity (`3b6c9593...`) accounting for over 1.69k successful logins originating from New York, US.
+* **Human vs. Machine Tracking:** In a production corporate environment, this high-density authentication pattern would instantly flag a potential account compromise or credential stuffing attack because it deviates completely from standard human behavior.
+* **Operational Conclusion:** Further root-cause investigation confirmed this cluster was actually safe "system noise"—specifically, a high-frequency automated health-check script running on a continuous loop natively out of an Azure East US data center.
+* **Business Value:** Successfully identifying and isolating this background infrastructure traffic ensures cleaner datasets, leading to accurate system observability, reduced false-positive fatigue for analysts, and faster incident investigation times.
 
 ### 2. Entra ID (Azure) Authentication Failures
-* **Log Source:** `SigninLogs` (ResultType != 0)
-* **Objective:** Maps failed login attempts across the tenant.
-* **Business Value:** High-density clusters quickly expose targeted credential-stuffing or brute-force campaigns.
+
+* **Log Source:** `SigninLogs`
+* **Objective:** Maps failed login attempts across the tenant to expose targeted credential-stuffing or brute-force campaigns.
+* **Business Value:** High-density failure clusters identify active threat vectors, allowing engineers to isolate targeted accounts and implement automated conditional access policies or block malicious subnets.
+
+#### Visual Dashboard
+### Entra ID Authentication Failure Map
+![Entra ID Authentication Failure Map](images/entra-failure-map.png)
+
+#### The KQL Query
+```kusto
+SigninLogs
+| where ResultType != 0 and Identity !contains "-"
+| summarize LoginCount = count() by Identity, Latitude = tostring(LocationDetails["geoCoordinates"]["latitude"]), Longitude = tostring(LocationDetails["geoCoordinates"]["longitude"]), City = tostring(LocationDetails["city"]), Country = tostring(LocationDetails["countryOrRegion"])
+| order by LoginCount desc
+| project Identity, Latitude, Longitude, City, Country, LoginCount, friendly_label = strcat(Identity, " - ", City, ", ", Country)
 
 ### 3. Azure Resource Creation & Modifications
 * **Log Source:** `AzureActivity` (OperationNameValue containing "write" or "action")
