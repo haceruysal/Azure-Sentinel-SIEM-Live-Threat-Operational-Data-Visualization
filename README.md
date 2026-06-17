@@ -152,9 +152,9 @@ AzureActivityRecords
 ---
 
 ### 4. Virtual Machine (VM) Authentication Failures
-* **Log Source:** `Syslog` (Linux) / `SecurityEvent` (Windows)
-* **Objective:** Monitors brute-force SSH/RDP attempts targeting specific cloud infrastructure components.
-* **Business Value:** Isolates vulnerable endpoints requiring stricter Network Security Group (NSG) rules or Just-In-Time (JIT) access.
+* **Log Source:** `DeviceLogonEvents` (Microsoft Defender for Endpoint / Sentinel Device telemetry mapping local and network authentication events).
+* **Objective:** Monitors failed device login attempts (`ActionType == "LogonFailed"`) globally to identify targeted credential-stuffing or distributed brute-force patterns.
+* **Business Value:** Enriches raw IP endpoints using an administrative geo-lookup database (`GeoIPDB_FULL`) to expose high-velocity attacking subnets, providing actionable threat intelligence to block malicious external traffic at the perimeter.
 
 #### Visual Dashboard
 <img width="1029" height="424" alt="image" src="https://github.com/user-attachments/assets/cd0b99c6-2f64-4f45-ae2f-1b145e5bab37" />
