@@ -172,7 +172,30 @@ DeviceLogonEvents
 ```
 
 ### 📊 Dashboard Analysis & Key Findings
+## 🔍 KQL Query Breakdown
 
+* **Isolates Brute-Force Failures:** Filters the `DeviceLogonEvents` table for `where ActionType == "LogonFailed"` to exclusively focus on unsuccessful local or network device authentication attempts.
+* **Chronological Sorting:** Uses `order by TimeGenerated desc` to ensure the most recent security events are processed prior to summary aggregation.
+* **Enriches Telemetry via Watchlist:** Utilizes the `evaluate ipv4_lookup` operator against an external `GeoIPDB_FULL` watchlist to dynamically match the raw `RemoteIP` addresses to real-world attributes (`cityname`, `countryname`, `latitude`, `longitude`).
+* **Flattens Data for Visualization:** Groups the results using `summarize LoginAttempts = count() by RemoteIP, City... Country...` to provide the map engine with exact physical coordinates paired with a concatenated string label (`friendly_location`).
+
+---
+
+## 🗺️ Map Visualization & Legend Key
+
+* **Threat Origins:** Bubbles pinpoint the physical or network location (IP geolocation) from which the device login failures are originating.
+* **Bubble Size (Volume):** Larger bubbles correspond directly to a higher volume of failed authentication events (`LoginAttempts`).
+* **Bubble Stacking (Density):** Heavily layered bubbles prove that a wide variety of unique rogue `RemoteIP` addresses or targeted host devices are interacting within the exact same region.
+* **Color Coding Key:** * <span style="color:green">**Green Bubbles**</span>: Represent isolated, low-volume credential friction or typical background brute-force noise across disparate global endpoints.
+  * <span style="color:red">**Red/Yellow Bubbles**</span>: Highlight high-severity volumetric alerts or aggressive distributed clusters where accumulated logons exceed standard regional baselines.
+
+---
+
+## ⚠️ Key Security Anomalies Detected
+
+* **The United States Red Zone Heatmap:** The most prominent visual anomaly is the dense, red-shaded cluster situated over the **Central/Eastern United States**. Even though individual location rows show double-digit attempts (e.g., Trenton at 19, Stamford at 25), the total regional aggregation triggers the volume heatmap scale, accounting for a massive chunk of the **1.33K "Other" events** bucket.
+* **Highly Active Dutch Telemetry:** The background data table reveals a persistent threat actor footprint radiating out of **Leeuwarden, Netherlands**. Multiple distinct IP addresses (such as `91.92.40.217` with **202 attempts** and `91.92.40.50` with **40 attempts**) are targeting resources from this exact coordinate block, standing out as a high-velocity localized campaign.
+* **Global Botnet Distribution:** Failed device logons are actively tracking from a highly distributed global network, hitting nodes in Taipei (33), Sydney (27), the United Kingdom (25), Russia, and South Korea (19). This footprint is indicative of an automated, coordinated credential-stuffing or password-spraying campaign leveraging a geographically diverse proxy network to find cracks in the perimeter.
 ---
 
 ### 5. Malicious Traffic Entering the Network
