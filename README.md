@@ -41,7 +41,8 @@ SigninLogs
 
 #### Visual Dashboard
 ### Entra ID Authentication Failure Map
-![Entra ID Authentication Failure Map](images/entra-failure-map.png)
+<img width="1756" height="563" alt="image" src="https://github.com/user-attachments/assets/4ed960b4-853a-4e02-9f01-ed6d16b76799" />
+
 
 #### The KQL Query
 ```kusto
@@ -50,9 +51,32 @@ SigninLogs
 | summarize LoginCount = count() by Identity, Latitude = tostring(LocationDetails["geoCoordinates"]["latitude"]), Longitude = tostring(LocationDetails["geoCoordinates"]["longitude"]), City = tostring(LocationDetails["city"]), Country = tostring(LocationDetails["countryOrRegion"])
 | order by LoginCount desc
 | project Identity, Latitude, Longitude, City, Country, LoginCount, friendly_label = strcat(Identity, " - ", City, ", ", Country)
-
-
 ```
+# 📊 Azure Sentinel Incident Analysis: Global Sign-In Failures
+
+This section outlines the KQL query logic and the geographic security findings visualized on the interactive workbook map.
+
+### 🔍 KQL Query Breakdown
+
+* **Isolates Failures:** Filters for `ResultType != 0` to exclusively catch failed or interrupted authentication attempts.
+* **Targets User Accounts:** Uses `Identity !contains "-"` to filter out standard system GUIDs and focus on named identities.
+* **Flattens Telemetry:** Extracts nested JSON fields (`Latitude`, `Longitude`, `City`, `Country`) to aggregate and count attacks by location.
+
+
+### 🗺️ Map Visualization & Legend Key
+
+* **Threat Origins:** Bubbles indicate the physical location of the attacking machine, VPN node, or proxy network.
+* **Bubble Size (Volume):** Larger bubbles correspond directly to a higher volume of bad login requests (`LoginCount`).
+* **Bubble Stacking (Density):** Heavily layered bubbles prove that a wide variety of unique user accounts are being targeted from the exact same region.
+* **Color Coding:** * <span style="color:green">**Green Bubbles**</span>: Represent standard credential friction (e.g., bad passwords, missing MFA tokens).
+  * <span style="color:red">**Red Bubbles**</span>: Highlight severe security overrides, such as hard **Conditional Access Policy blocks** or account lockouts.
+
+### ⚠️ Key Security Anomalies Detected
+
+* **The "Null Island" Effect:** The massive green bubble over the Atlantic Ocean (coordinates `0,0`) highlights heavily proxied or obfuscated traffic; because the geo-IP system cannot parse the corrupted/masked routing strings, it defaults to zero.
+* **North American Red Zone:** A distinct cluster of overlapping red wedges across the Northeastern U.S. and Eastern Canada reveals an aggressive campaign actively hitting corporate security policy barriers.
+* **Distributed Brute-Forcing:** Low-volume background noise (3–16 attempts per node) scattered globally across Europe, South Africa, and Asia indicates a typical distributed credential-stuffing script rotating through global proxies.
+
 ### 3. Azure Resource Creation & Modifications
 * **Log Source:** `AzureActivity` (OperationNameValue containing "write" or "action")
 * **Objective:** Visualizes where and when infrastructure modifications occur.
