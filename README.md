@@ -196,12 +196,6 @@ DeviceLogonEvents
 * **The United States Red Zone Heatmap:** The most prominent visual anomaly is the dense, red-shaded cluster situated over the **Central/Eastern United States**. Even though individual location rows show double-digit attempts (e.g., Trenton at 19, Stamford at 25), the total regional aggregation triggers the volume heatmap scale, accounting for a massive chunk of the **1.33K "Other" events** bucket.
 * **Highly Active Dutch Telemetry:** The background data table reveals a persistent threat actor footprint radiating out of **Leeuwarden, Netherlands**. Multiple distinct IP addresses (such as `91.92.40.217` with **202 attempts** and `91.92.40.50` with **40 attempts**) are targeting resources from this exact coordinate block, standing out as a high-velocity localized campaign.
 * **Global Botnet Distribution:** Failed device logons are actively tracking from a highly distributed global network, hitting nodes in Taipei (33), Sydney (27), the United Kingdom (25), Russia, and South Korea (19). This footprint is indicative of an automated, coordinated credential-stuffing or password-spraying campaign leveraging a geographically diverse proxy network to find cracks in the perimeter.
----
-
-### 5. Malicious Traffic Entering the Network
-* **Log Source:** `AzureDiagnostics` / `CommonSecurityLog` (Firewall/WAF logs)
-* **Objective:** Maps inbound traffic flagged by threat intelligence feeds or blocked by edge security policies.
-* **Business Value:** Identifies active adversaries and origin networks attempting to exploit infrastructure vulnerabilities.
 
 ---
 
