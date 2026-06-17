@@ -33,6 +33,9 @@ SigninLogs
 * **Operational Conclusion:** Further root-cause investigation confirmed this cluster was actually safe "system noise"—specifically, a high-frequency automated health-check script running on a continuous loop natively out of an Azure East US data center.
 * **Business Value:** Successfully identifying and isolating this background infrastructure traffic ensures cleaner datasets, leading to accurate system observability, reduced false-positive fatigue for analysts, and faster incident investigation times.
 
+
+---
+
 ### 2. Entra ID (Azure) Authentication Failures
 
 * **Log Source:** `SigninLogs`
@@ -52,9 +55,6 @@ SigninLogs
 | order by LoginCount desc
 | project Identity, Latitude, Longitude, City, Country, LoginCount, friendly_label = strcat(Identity, " - ", City, ", ", Country)
 ```
-# 📊 Azure Sentinel Incident Analysis: Global Sign-In Failures
-
-This section outlines the KQL query logic and the geographic security findings visualized on the interactive workbook map.
 
 ### 🔍 KQL Query Breakdown
 
@@ -76,6 +76,9 @@ This section outlines the KQL query logic and the geographic security findings v
 * **The "Null Island" Effect:** The massive green bubble over the Atlantic Ocean (coordinates `0,0`) highlights heavily proxied or obfuscated traffic; because the geo-IP system cannot parse the corrupted/masked routing strings, it defaults to zero.
 * **North American Red Zone:** A distinct cluster of overlapping red wedges across the Northeastern U.S. and Eastern Canada reveals an aggressive campaign actively hitting corporate security policy barriers.
 * **Distributed Brute-Forcing:** Low-volume background noise (3–16 attempts per node) scattered globally across Europe, South Africa, and Asia indicates a typical distributed credential-stuffing script rotating through global proxies.
+
+
+---
 
 ### 3. Azure Resource Creation & Modifications
 * **Log Source:** `AzureActivity` (OperationNameValue containing "write" or "action")
